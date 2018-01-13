@@ -24,10 +24,10 @@ std::list<node*> expressions;
 
 /* terminal symbols */
 %token <value> INT
-%token LPAREN RPAREN NL
+%token LPAREN RPAREN NL IN PRE POST COLON
 
 /* non-terminal symbols */
-%type <opnode> expression
+%type <opnode> infix_expression prefix_expression postfix_expression
 
 /* precedence */
 %left PLUS MINUS
@@ -45,16 +45,42 @@ lines
 	;
 
 line
-	: expression { expressions.push_back($1); }
+	: IN COLON infix_expression { expressions.push_back($3); }
+	| PRE COLON prefix_expression { expressions.push_back($3); }
+	| POST COLON postfix_expression { expressions.push_back($3); }
 	| %empty
 	;
 
-expression
-	: expression PLUS expression { $$ = new plus_node($1, $3); }
-	| expression MINUS expression { $$ = new minus_node($1, $3); }
-	| expression TIMES expression { $$ = new times_node($1, $3); }
-	| expression DIV expression { $$ = new div_node($1, $3); }
-	| LPAREN expression RPAREN { $$ = $2; }
+infix_expression
+	: infix_expression PLUS infix_expression { $$ = new plus_node($1, $3); }
+	| infix_expression MINUS infix_expression { $$ = new minus_node($1, $3); }
+	| infix_expression TIMES infix_expression { $$ = new times_node($1, $3); }
+	| infix_expression DIV infix_expression { $$ = new div_node($1, $3); }
+	| LPAREN infix_expression RPAREN { $$ = $2; }
+	| INT { $$ = new int_node($1); }
+	;
+
+prefix_expression
+	: PLUS prefix_expression prefix_expression { $$ = new plus_node($2, $3); }
+	| MINUS prefix_expression prefix_expression { $$ = new minus_node($2, $3); }
+	| TIMES prefix_expression prefix_expression { $$ = new times_node($2, $3); }
+	| DIV prefix_expression prefix_expression { $$ = new div_node($2, $3); }
+	| INT { $$ = new int_node($1); }
+	;
+
+postfix_expression
+	: postfix_expression postfix_expression PLUS {
+		$$ = new plus_node($1, $2);
+	}
+	| postfix_expression postfix_expression MINUS {
+		$$ = new minus_node($1, $2);
+	}
+	| postfix_expression postfix_expression TIMES {
+		$$ = new times_node($1, $2);
+	}
+	| postfix_expression postfix_expression DIV {
+		$$ = new div_node($1, $2);
+	}
 	| INT { $$ = new int_node($1); }
 	;
 
