@@ -9,7 +9,7 @@ extern FILE* yyin;
 extern int yylex();
 extern void yyerror(const char*, ...);
 
-std::list<node*> expressions;
+std::list<line> lines;
 %}
 
 %define parse.error verbose
@@ -19,15 +19,20 @@ std::list<node*> expressions;
 
 %union {
 	int value;
-	node* opnode;
+	line line;
+	notation notation;
+	node* node;
 }
 
 /* terminal symbols */
 %token <value> INT
-%token LPAREN RPAREN NL IN PRE POST COLON
+%token <notation> IN PRE POST
+%token ARROW COLON LPAREN RPAREN NL
 
 /* non-terminal symbols */
-%type <opnode> infix_expression prefix_expression postfix_expression
+%type <line> line
+%type <notation> notation
+%type <node> infix_expression prefix_expression postfix_expression
 
 /* precedence */
 %left PLUS MINUS
@@ -40,15 +45,22 @@ program
 	;
 
 lines
-	: lines NL line
-	| line
+	: lines NL line { lines.push_back($3); }
+	| lines NL
+	| line { lines.push_back($1); }
+	| %empty
 	;
 
 line
-	: IN COLON infix_expression { expressions.push_back($3); }
-	| PRE COLON prefix_expression { expressions.push_back($3); }
-	| POST COLON postfix_expression { expressions.push_back($3); }
-	| %empty
+	: IN ARROW notation COLON infix_expression { $$ = line($5, $3); }
+	| PRE ARROW notation COLON prefix_expression { $$ = line($5, $3); }
+	| POST ARROW notation COLON postfix_expression { $$ = line($5, $3); }
+	;
+
+notation
+	: IN
+	| PRE
+	| POST
 	;
 
 infix_expression
@@ -91,8 +103,8 @@ int main(int argc, char** argv) {
 		yyin = std::fopen(argv[1], "r");
 
 	if (yyparse() == 0) {
-		for (auto expr: expressions) {
-			std::cout << expr->prefix() << "= " << expr->eval() << std::endl;
+		for (auto l: lines) {
+			std::cout << l.out() << std::endl;
 		}
 	}
 }

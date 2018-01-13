@@ -15,9 +15,10 @@ digs [0-9]+
 
 [ \t]     ; /* ignore whitespace */
 {digs}    { yylval.value = std::atoi(yytext); return INT; }
-"in"      { return IN; }
-"pre"     { return PRE; }
-"post"    { return POST; }
+"in"      { yylval.notation = INFIX; return IN; }
+"pre"     { yylval.notation = PREFIX; return PRE; }
+"post"    { yylval.notation = POSTFIX; return POST; }
+"->"      { return ARROW; }
 ":"       { return COLON; }
 "+"       { return PLUS; }
 "-"       { return MINUS; }
