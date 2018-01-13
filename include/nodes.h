@@ -3,16 +3,12 @@
 
 #include <string>
 
-enum notation {
-	INFIX,
-	PREFIX,
-	POSTFIX
-};
+enum notation { INFIX, PREFIX, POSTFIX };
 
 class node {
 public:
 	node() = default;
-	node(node* _left, node* _right): left{_left}, right{_right} {}
+	node(node* _left, node* _right) : left{_left}, right{_right} {}
 	virtual int eval() const = 0;
 	virtual std::string infix() const = 0;
 	virtual std::string prefix() const;
@@ -53,7 +49,7 @@ public:
 
 class int_node : public node {
 public:
-	int_node(int _value): value{_value} {}
+	int_node(int _value) : value{_value} {}
 	int eval() const override;
 	std::string infix() const override;
 	std::string prefix() const override;
@@ -66,9 +62,8 @@ private:
 class line {
 public:
 	line() = default;
-	line(node* _root, notation _output_notation):
-		root{_root},
-		output_notation{_output_notation} {}
+	line(node* _root, notation _output_notation)
+		: root{_root}, output_notation{_output_notation} {}
 	std::string out() const;
 
 private:

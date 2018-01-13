@@ -2,21 +2,31 @@
 #include <nodes.h>
 
 /* check if node is one of the lower precedence operators */
-#define __needs_parentheses(node) \
-			(dynamic_cast<const plus_node*>(node) || \
-			dynamic_cast<const minus_node*>(node))
+#define __needs_parentheses(node)                                              \
+	(dynamic_cast<const plus_node*>(node) ||                                   \
+	 dynamic_cast<const minus_node*>(node))
 
 static std::string parenthesized_infix(node* const, node* const, std::string);
 
-int plus_node::eval() const { return left->eval() + right->eval(); }
+int plus_node::eval() const {
+	return left->eval() + right->eval();
+}
 
-int minus_node::eval() const { return left->eval() - right->eval(); }
+int minus_node::eval() const {
+	return left->eval() - right->eval();
+}
 
-int times_node::eval() const { return left->eval() * right->eval(); }
+int times_node::eval() const {
+	return left->eval() * right->eval();
+}
 
-int div_node::eval() const { return left->eval() / right->eval(); }
+int div_node::eval() const {
+	return left->eval() / right->eval();
+}
 
-int int_node::eval() const { return value; }
+int int_node::eval() const {
+	return value;
+}
 
 /* infix notation output */
 
@@ -36,8 +46,8 @@ std::string div_node::infix() const {
 	return parenthesized_infix(left, right, "/");
 }
 
-std::string parenthesized_infix(node* const left, node* const right,
-		std::string op) {
+std::string
+parenthesized_infix(node* const left, node* const right, std::string op) {
 	std::string out;
 
 	if (__needs_parentheses(left))
