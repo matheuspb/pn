@@ -1,9 +1,11 @@
 %{
 #include <iostream>
+#include <cstdio>
 #include <list>
 #include <nodes.h>
 
 extern int yylineno;
+extern FILE* yyin;
 extern int yylex();
 extern void yyerror(const char*, ...);
 
@@ -58,9 +60,13 @@ expression
 
 %%
 
-int main() {
-	yyparse();
-	for (auto expr: expressions) {
-		std::cout << expr->prefix() << "= " << expr->eval() << std::endl;
+int main(int argc, char** argv) {
+	if (argc == 2)
+		yyin = std::fopen(argv[1], "r");
+
+	if (yyparse() == 0) {
+		for (auto expr: expressions) {
+			std::cout << expr->prefix() << "= " << expr->eval() << std::endl;
+		}
 	}
 }
