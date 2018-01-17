@@ -1,38 +1,43 @@
-%{
-#include <iostream>
-#include <cstdio>
-#include <list>
-#include <nodes.h>
-
-extern int yylineno;
-extern FILE* yyin;
-extern int yylex();
-extern void yyerror(const char*, ...);
-
-std::list<line> lines;
-%}
-
-%define parse.error verbose
+%language "c++"
+%skeleton "lalr1.cc"
 
 %defines "include/parser.h"
 %output "src/parser.cpp"
 
-%union {
-	int value;
-	line line;
-	notation notation;
-	node* node;
+%define parser_class_name { pn_parser }
+%define api.token.constructor
+%define api.value.type variant
+%define parse.error verbose
+
+%locations
+
+%code requires
+{
+#include <iostream>
+#include <cstdio>
+#include <list>
+#include <nodes.h>
+}
+
+%code
+{
+extern FILE* yyin;
+extern yy::pn_parser::symbol_type yylex();
+
+void generic_error(const yy::location&, const std::string&);
+
+std::list<line> lines;
 }
 
 /* terminal symbols */
-%token <value> INT
+%token <int> INT
 %token <notation> IN PRE POST
-%token ARROW COLON LPAREN RPAREN NL
+%token ARROW COLON LPAREN RPAREN NL END 0
 
 /* non-terminal symbols */
 %type <line> line
 %type <notation> notation
-%type <node> infix_expression prefix_expression postfix_expression
+%type <node*> infix_expression prefix_expression postfix_expression
 
 /* precedence */
 %left PLUS MINUS
@@ -58,9 +63,9 @@ line
 	;
 
 notation
-	: IN
-	| PRE
-	| POST
+	: IN { $$ = $1; }
+	| PRE { $$ = $1; }
+	| POST { $$ = $1; }
 	;
 
 infix_expression
@@ -98,13 +103,26 @@ postfix_expression
 
 %%
 
+void generic_error(const yy::location& l, const std::string &m) {
+	std::cerr << "[Error at " << l << "] " << m << std::endl;
+}
+
+void yy::pn_parser::error(const location_type& l, const std::string &m) {
+	generic_error(l, m);
+}
+
 int main(int argc, char** argv) {
+	yy::pn_parser p;
+
 	if (argc == 2)
 		yyin = std::fopen(argv[1], "r");
 
-	if (yyparse() == 0) {
+	if (p.parse() == 0) {
 		for (auto l: lines) {
 			std::cout << l.out() << std::endl;
 		}
 	}
+
+	if (yyin != stdin)
+		std::fclose(yyin);
 }
