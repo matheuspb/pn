@@ -3,7 +3,9 @@
 #include <parser.h>
 #include <nodes.h>
 
-#define yyterminate() return yy::pn_parser::make_END(yyloc)
+#define yyterminate() \
+	yypop_buffer_state(); \
+	return yy::pn_parser::make_END(yyloc);
 #define YY_DECL yy::pn_parser::symbol_type yylex()
 #define YY_USER_ACTION yyloc.step(); yyloc.columns(yyleng);
 

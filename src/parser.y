@@ -114,12 +114,13 @@ void yy::pn_parser::error(const location_type& l, const std::string &m) {
 int main(int argc, char** argv) {
 	yy::pn_parser p;
 
-	if (argc == 2)
+	if (argc > 1)
 		yyin = std::fopen(argv[1], "r");
 
 	if (p.parse() == 0) {
 		for (auto l: lines) {
 			std::cout << l.out() << std::endl;
+			l.destroy();
 		}
 	}
 

@@ -9,6 +9,8 @@ class node {
 public:
 	node() = default;
 	node(node* _left, node* _right) : left{_left}, right{_right} {}
+	virtual ~node();
+
 	virtual int eval() const = 0;
 	virtual std::string infix() const = 0;
 	virtual std::string prefix() const;
@@ -64,7 +66,11 @@ public:
 	line() = default;
 	line(node* _root, notation _output_notation)
 		: root{_root}, output_notation{_output_notation} {}
+
 	std::string out() const;
+
+	// TODO write a proper destructor
+	void destroy();
 
 private:
 	node* root;

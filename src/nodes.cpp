@@ -6,7 +6,12 @@
 	(dynamic_cast<const plus_node*>(node) ||                                   \
 	 dynamic_cast<const minus_node*>(node))
 
-static std::string parenthesized_infix(node* const, node* const, std::string);
+static std::string parenthesized_infix(const node*, const node*, std::string);
+
+node::~node() {
+	delete left;
+	delete right;
+}
 
 int plus_node::eval() const {
 	return left->eval() + right->eval();
@@ -47,7 +52,7 @@ std::string div_node::infix() const {
 }
 
 std::string
-parenthesized_infix(node* const left, node* const right, std::string op) {
+parenthesized_infix(const node* left, const node* right, std::string op) {
 	std::string out;
 
 	if (__needs_parentheses(left))
@@ -108,6 +113,11 @@ std::string node::postfix() const {
 
 std::string int_node::postfix() const {
 	return " " + std::to_string(value);
+}
+
+/* line destructor */
+void line::destroy() {
+	delete root;
 }
 
 /* returns a string representing the expression using the desired notation */
