@@ -1,9 +1,6 @@
 %language "c++"
 %skeleton "lalr1.cc"
 
-%defines "include/parser.h"
-%output "src/parser.cpp"
-
 %define parser_class_name { pn_parser }
 %define api.token.constructor
 %define api.value.type variant
@@ -14,6 +11,7 @@
 %code requires
 {
 #include <iostream>
+#include <string>
 #include <cstdio>
 #include <list>
 #include <nodes.h>

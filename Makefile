@@ -23,7 +23,7 @@ $(SCANNER_SRC): $(SCANNER_L)
 	flex -o $(SCANNER_SRC) $(SCANNER_L)
 
 $(PARSER_SRC) $(PARSER_H): $(PARSER_Y)
-	bison $(PARSER_Y)
+	bison -o $(PARSER_SRC) --defines=$(PARSER_H) $(PARSER_Y)
 	mv $(SOURCE_DIR)/*.hh $(INCLUDE_DIR)
 
 $(SOURCE_DIR)/parser: $(OBJ_FILES)
