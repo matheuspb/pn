@@ -30,12 +30,12 @@ std::list<line> lines;
 /* terminal symbols */
 %token <int> INT
 %token <notation> IN PRE POST
-%token ARROW COLON LPAREN RPAREN NL END 0
+%token ARROW LPAREN RPAREN NL END 0
 
 /* non-terminal symbols */
 %type <line> line
 %type <notation> notation
-%type <node*> infix_expression prefix_expression postfix_expression
+%type <node*> expression infix_expression prefix_expression postfix_expression
 
 /* precedence */
 %left PLUS MINUS
@@ -55,15 +55,19 @@ lines
 	;
 
 line
-	: IN ARROW notation COLON infix_expression { $$ = line($5, $3); }
-	| PRE ARROW notation COLON prefix_expression { $$ = line($5, $3); }
-	| POST ARROW notation COLON postfix_expression { $$ = line($5, $3); }
+	: expression ARROW notation { $$ = line($1, $3); }
 	;
 
 notation
 	: IN { $$ = $1; }
 	| PRE { $$ = $1; }
 	| POST { $$ = $1; }
+	;
+
+expression /* TODO solve reduce/reduce conflict when parsing only an INT */
+	: infix_expression { $$ = $1; }
+	| prefix_expression { $$ = $1; }
+	| postfix_expression { $$ = $1; }
 	;
 
 infix_expression

@@ -25,7 +25,6 @@ digs [0-9]+
 "pre"	return yy::pn_parser::make_PRE(PREFIX, yyloc);
 "post"	return yy::pn_parser::make_POST(POSTFIX, yyloc);
 "->"	return yy::pn_parser::make_ARROW(yyloc);
-":"	return yy::pn_parser::make_COLON(yyloc);
 "+"	return yy::pn_parser::make_PLUS(yyloc);
 "-"	return yy::pn_parser::make_MINUS(yyloc);
 "*"	return yy::pn_parser::make_TIMES(yyloc);

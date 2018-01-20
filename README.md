@@ -6,8 +6,8 @@ Polish notation(s) converter using Flex/Bison
 Example input file:
 
 ```
-pre -> in: * 3 + 4 5
-in -> post: 25 / 5 + 3 + 4 / 2
+* 3 + 4 5 -> in
+25 / 5 + 3 + 4 / 2 -> post
 ```
 
 will output:
