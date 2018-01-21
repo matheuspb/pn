@@ -1,5 +1,6 @@
 %{
 #include <string>
+#include <lexical_error.h>
 #include <parser.h>
 #include <nodes.h>
 
@@ -10,7 +11,6 @@
 #define YY_USER_ACTION yyloc.step(); yyloc.columns(yyleng);
 
 static yy::location yyloc;
-extern void generic_error(const yy::location&, const std::string&);
 %}
 
 %option noyywrap noinput nounput nodefault
@@ -32,12 +32,7 @@ digs [0-9]+
 "("	return yy::pn_parser::make_LPAREN(yyloc);
 ")"	return yy::pn_parser::make_RPAREN(yyloc);
 \n	yyloc.lines(yyleng); yyloc.step(); return yy::pn_parser::make_NL(yyloc);
-.	{
-	std::string err_msg("lexical error, unknown symbol ");
-	err_msg += yytext;
-	generic_error(yyloc, err_msg);
-	yyterminate();
-}
+.	throw lexical_error(yyloc, yytext);
 <<EOF>>	yyterminate();
 
 %%

@@ -14,6 +14,7 @@
 #include <string>
 #include <cstdio>
 #include <list>
+#include <lexical_error.h>
 #include <nodes.h>
 }
 
@@ -21,16 +22,16 @@
 {
 extern FILE* yyin;
 extern yy::pn_parser::symbol_type yylex();
+extern void yypop_buffer_state();
 
-void generic_error(const yy::location&, const std::string&);
-
-std::list<line> lines;
+static std::list<line> lines;
 }
 
 /* terminal symbols */
-%token <int> INT
-%token <notation> IN PRE POST
-%token ARROW LPAREN RPAREN NL END 0
+%token <int> INT "integer"
+%token <notation> IN "in" PRE "pre" POST "post"
+%token ARROW "->" LPAREN "(" RPAREN ")" NL "new line" END 0 "end of file"
+%token PLUS "+" MINUS "-" TIMES "*" DIV "/"
 
 /* non-terminal symbols */
 %type <line> line
@@ -45,13 +46,13 @@ std::list<line> lines;
 
 program
 	: lines
+	| %empty
 	;
 
 lines
 	: lines NL line { lines.push_back($3); }
 	| lines NL
 	| line { lines.push_back($1); }
-	| %empty
 	;
 
 line
@@ -105,25 +106,29 @@ postfix_expression
 
 %%
 
-void generic_error(const yy::location& l, const std::string &m) {
+void show_error(const yy::location& l, const std::string &m) {
 	std::cerr << "[Error at " << l << "] " << m << std::endl;
 }
 
 void yy::pn_parser::error(const location_type& l, const std::string &m) {
-	generic_error(l, m);
+	show_error(l, m);
 }
 
 int main(int argc, char** argv) {
-	yy::pn_parser p;
-
 	if (argc > 1)
 		yyin = std::fopen(argv[1], "r");
 
-	if (p.parse() == 0) {
-		for (auto l: lines) {
-			std::cout << l.out() << std::endl;
-			l.destroy();
+	try {
+		yy::pn_parser p;
+		if (p.parse() == 0) {
+			for (auto l: lines) {
+				std::cout << l.out() << std::endl;
+				l.destroy();
+			}
 		}
+	} catch (const lexical_error& e) {
+		yypop_buffer_state();  // cleans scanner memory
+		show_error(e.location(), e.what());
 	}
 
 	if (yyin != stdin)

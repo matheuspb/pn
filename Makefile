@@ -17,6 +17,8 @@ PARSER_SRC = $(SOURCE_DIR)/parser.cpp
 SRC_FILES = $(SCANNER_SRC) $(PARSER_SRC) $(SOURCE_DIR)/nodes.cpp
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
+I_TARGET = $(PARSER_SRC:.cpp=)
+
 all: $(TARGET)
 
 $(SCANNER_SRC): $(SCANNER_L)
@@ -26,10 +28,10 @@ $(PARSER_SRC) $(PARSER_H): $(PARSER_Y)
 	bison -o $(PARSER_SRC) --defines=$(PARSER_H) $(PARSER_Y)
 	mv $(SOURCE_DIR)/*.hh $(INCLUDE_DIR)
 
-$(SOURCE_DIR)/parser: $(OBJ_FILES)
-$(TARGET): $(SOURCE_DIR)/parser
-	cp $(SOURCE_DIR)/parser $(TARGET)
+$(I_TARGET): $(OBJ_FILES)
+$(TARGET): $(I_TARGET)
+	cp $(I_TARGET) $(TARGET)
 
 clean:
-	rm -f $(TARGET) $(SOURCE_DIR)/parser $(OBJ_FILES)
+	rm -f $(TARGET) $(I_TARGET) $(OBJ_FILES)
 	rm -f $(INCLUDE_DIR)/*.hh $(SCANNER_SRC) $(PARSER_H) $(PARSER_SRC)
